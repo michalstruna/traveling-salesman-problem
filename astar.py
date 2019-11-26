@@ -10,9 +10,6 @@ class Graph:
         i = -1
 
         for city in vertices:
-            #if city in exclude:
-            #    continue
-
             dist = distances[start, city]
 
             if dist < distance:
