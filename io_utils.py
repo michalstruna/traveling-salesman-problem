@@ -2,21 +2,39 @@ import argparse
 import matplotlib.pyplot as plt
 import pandas as pd
 import numpy as np
+import csv
 
 from genetic import Crossover
 
 class Reader:
 
-    def read_excel(self, path):
-        data = np.array(pd.read_excel(path))
-        cities = data[:, 0]
-        distances = data[:, 1:]
+    def read_csv(self, path):
+        rows = []
+
+        with open(path) as file:
+            reader = csv.reader(file)
+
+            for row in reader:
+                rows.append(row)
+
+        data = np.array(rows)
+        cities = data[1:, 0]
+        distances = data[1:, 1:]
+
+        for i in range(distances.shape[0]):
+            distances[i, i] = 0
+
+            for j in range(i):
+                distances[i, j] = distances[j, i]
+        
+        distances = distances.astype(np.float)
+                
         return cities, distances
 
     def read_args(self):
         parser = argparse.ArgumentParser()
         parser.add_argument("-f", "--fitness", help = "Show fitness history in plot.", action = "store_true")
-        parser.add_argument("-i", "--input", help = "Source xlsx file.", default = "Distance.xlsx")
+        parser.add_argument("-i", "--input", help = "Source csv file.", default = "Distance.csv")
         parser.add_argument("-m", "--mutation", help = "Probability of mutation from 0 to 1.", type = float, default = 0.05)
         parser.add_argument("-g", "--generations", help = "Count of generations.", type = int, default = 250)
         parser.add_argument("-p", "--population", help = "Count of individuals in population.", type = int, default = 500)
