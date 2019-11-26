@@ -10,7 +10,7 @@ from astar import PathFinder
 writer = Writer()
 reader = Reader()
 args = reader.read_args()
-cities, distances = reader.read_csv(args.input)
+cities, distances = reader.read_csv(args.input, args.size)
 
 start = time.time()
 

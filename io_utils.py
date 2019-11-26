@@ -3,12 +3,13 @@ import matplotlib.pyplot as plt
 import pandas as pd
 import numpy as np
 import csv
+import sys
 
 from genetic import Crossover
 
 class Reader:
 
-    def read_csv(self, path):
+    def read_csv(self, path, size = sys.maxsize):
         rows = []
 
         with open(path) as file:
@@ -19,7 +20,7 @@ class Reader:
 
         data = np.array(rows)
         cities = data[1:, 0]
-        distances = data[1:, 1:]
+        distances = data[2:, 2:]
 
         for i in range(distances.shape[0]):
             distances[i, i] = 0
@@ -28,6 +29,7 @@ class Reader:
                 distances[i, j] = distances[j, i]
         
         distances = distances.astype(np.float)
+        distances = distances[:size, :size]
                 
         return cities, distances
 
@@ -41,6 +43,7 @@ class Reader:
         parser.add_argument("-c", "--crossover", help = "Crossover operator.", choices = ["order1", "order2", "cycle", "pmx"], default = "order1")
         parser.add_argument("-t", "--tournament", help = "Count of tournament player in selection.", type = int, default = 2)
         parser.add_argument("-a", "--astar", help = "Use A* instead of genetic algorithm.", action = "store_true")
+        parser.add_argument("-s", "--size", help = "Select only first N cities from source file.", type = int, default = sys.maxsize)
         args = parser.parse_args()
 
         args.crossover = Crossover.from_string(args.crossover)
@@ -66,7 +69,7 @@ class Writer:
     def write_result(self, path, cities, length, time):
         print("")
         self.dynamic_write(f"Vzdálenost: {round(length, 2)}\n")
-        print(" → ".join(map(lambda i: str(i), path)))
+        print(" → ".join(map(lambda i: cities[i], path)))
         print(f"Doba trvání: {round(time, 2)} s")
 
     def show_fitness_history(self, best_fitness, mean_fitness, worst_fitness):
